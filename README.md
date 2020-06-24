@@ -5,6 +5,6 @@ A google Chrome extension to bookmark anywhere on a web page and save it for lat
 
 # Screenshots:
 
-![extension screenshot](screenshots/ext_shot.jpg)
-![](screenshots/big.jpg)
+![extension screenshot](/screenshots/ext_shot.JPG)
+![](/screenshots/big.jpg)
 
