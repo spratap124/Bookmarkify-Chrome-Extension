@@ -12,7 +12,11 @@ function initBookmarkify() {
 
     // create a button to bookmark a section
     const btn = document.createElement('span')
-    btn.innerHTML = '&#128278';
+    //  btn.innerHTML = '&#128278';
+    const icon = document.createElement("div")
+    icon.className = 'bookmarkIcon'
+    icon.id = 'bkIcon';
+    btn.appendChild(icon)
     btn.className = 'bookmarkBtn';
     btn.setAttribute('title', 'Bookmark this line')
     btn.id = 'bookmarkBtn'
@@ -40,24 +44,24 @@ function initBookmarkify() {
 
             // show the bookmark icon near the selected text
             bookmarkBtn.classList.add('show')
-            bookmarkBtn.style.left = (x - 0) + 'px';
-            bookmarkBtn.style.top = (y - 36) + 'px';
+            bookmarkBtn.style.left = (x + 10)+ 'px';
+            bookmarkBtn.style.top = y + 'px';
         }
     }
 
 
     // hide bookmark button if nothing is selected
-    document.addEventListener('mousedown', onSelectionRemove, false)
+    document.addEventListener('mousedown', onSelectionRemove)
 
     function onSelectionRemove(event) {
-        if (getComputedStyle(bookmarkBtn).display == 'block' && event.target.id !== 'bookmarkBtn') {
+        if (getComputedStyle(bookmarkBtn).display == 'block' && event.target.id !== 'bookmarkBtn' && event.target.id !== 'bkIcon') {
             bookmarkBtn.classList.remove('show')
             window.getSelection().empty();
         }
     }
 
     // add new click event to save a bookmark
-    bookmarkBtn.addEventListener('click', addAbookmark, false)
+    bookmarkBtn.addEventListener('click', addAbookmark)
 
     function addAbookmark(event) {
 
