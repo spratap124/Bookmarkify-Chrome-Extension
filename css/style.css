@@ -21,10 +21,11 @@
     width:8px;
     height:8px;
     background: #f35c5c;
-    position:relative;
     display: inline-block;
-    top: -7px;
-    left: -1px;
+    position: absolute;
+    left: 50%;
+    top: 35%;
+    transform: translate(-50%, -50%);
   }
   
   .bookmarkIcon:after{

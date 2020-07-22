@@ -147,13 +147,16 @@ function drawBookmarkBar() {
     // if bookmarks are created then , draw bookmarkbar
     if (bookmarkList !== null) {
         let list = bookmarkList[url]
-        if (list.length != 0) {
-            // create navigation dots to scroll to the bookmark location
-            for (bookmark of list) {
-                let dot = getBookmarkDot(bookmark)
-                bookmarkBar.appendChild(dot)
+        if (list) {
+            if(list.length !=0){
+                // create navigation dots to scroll to the bookmark location
+                for (bookmark of list) {
+                    let dot = getBookmarkDot(bookmark)
+                    bookmarkBar.appendChild(dot)
+                }
+                body.appendChild(bookmarkBar)
             }
-            body.appendChild(bookmarkBar)
+            
         }
 
     }
