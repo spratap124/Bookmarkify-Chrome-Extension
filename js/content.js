@@ -1,8 +1,34 @@
+
+let bookmarkBtn = '';
+// set the selecte text to empty initially 
+let selectedText = ""
+
 init();
 
 function init() {
-    initBookmarkify();
-    drawBookmarkBar();
+    if(isEnabled() != 'false'){
+        initBookmarkify();
+        drawBookmarkBar();
+    }
+}
+
+function isEnabled(){
+    let checkLocalStorage = localStorage.getItem('bookmarkifyEnabled');
+    if(checkLocalStorage != null){
+        return checkLocalStorage
+    }else{
+        enable()
+        return true;
+    }
+    
+}
+
+function enable(){
+    localStorage.setItem('bookmarkifyEnabled',true)
+}
+
+function disable(){
+    localStorage.setItem('bookmarkifyEnabled',false)
 }
 
 
@@ -25,84 +51,87 @@ function initBookmarkify() {
     body.appendChild(btn)
 
     // get bookmark button element from DOM
-    const bookmarkBtn = document.getElementById('bookmarkBtn');
-
-    // set the selecte text to empty initially 
-    let selectedText = ""
+     bookmarkBtn = document.getElementById('bookmarkBtn');
 
     // add an event to get the selected text
     document.addEventListener('mouseup', onTextSelected, false);
 
-    function onTextSelected() {
-
-        let newSelectedText = getSelectionText();
-
-        if (newSelectedText !== "") {
-            selectedText = newSelectedText;
-            const x = event.pageX;
-            const y = event.pageY;
-
-            // show the bookmark icon near the selected text
-            bookmarkBtn.classList.add('show')
-            bookmarkBtn.style.left = (x + 10)+ 'px';
-            bookmarkBtn.style.top = y + 'px';
-        }
-    }
-
-
     // hide bookmark button if nothing is selected
     document.addEventListener('mousedown', onSelectionRemove)
+    
+    // add new click event to save a bookmark
+    bookmarkBtn.addEventListener('click', addAbookmark)
+}
 
-    function onSelectionRemove(event) {
+function onTextSelected() {
+    bookmarkBtn = document.getElementById('bookmarkBtn');
+    if(isEnabled()){
+        let newSelectedText = getSelectionText();
+
+    if (newSelectedText !== "") {
+        selectedText = newSelectedText;
+        const x = event.pageX;
+        const y = event.pageY;
+
+        // show the bookmark icon near the selected text
+        bookmarkBtn.classList.add('show')
+        bookmarkBtn.style.left = (x + 10)+ 'px';
+        bookmarkBtn.style.top = y + 'px';
+    }
+    }
+}
+
+function onSelectionRemove(event) {
+    if(event.which != 3){
         if (getComputedStyle(bookmarkBtn).display == 'block' && event.target.id !== 'bookmarkBtn' && event.target.id !== 'bkIcon') {
             bookmarkBtn.classList.remove('show')
             window.getSelection().empty();
         }
+    }else{
+        bookmarkBtn.classList.remove('show')
+    }
+    
+}
+
+function addAbookmark(event) {
+
+    let bookmarkList = JSON.parse(localStorage.getItem('bookmarks')) || {}
+    let currentURL = window.location.href;
+    let title = selectedText;
+    let pos = event.pageY;
+
+    const bookmark = {
+        title: title,
+        top: pos,
+        color: getRandomColor()
     }
 
-    // add new click event to save a bookmark
-    bookmarkBtn.addEventListener('click', addAbookmark)
+    // if bookmark is created for the current site
+    if (bookmarkList) {
 
-    function addAbookmark(event) {
+        let currentPageBookmarkList = getBookmark(bookmarkList);
 
-        let bookmarkList = JSON.parse(localStorage.getItem('bookmarks')) || {}
-        let currentURL = window.location.href;
-        let title = selectedText;
-        let pos = event.pageY;
-
-        const bookmark = {
-            title: title,
-            top: pos,
-            color: getRandomColor()
-        }
-
-        // if bookmark is created for the current site
-        if (bookmarkList) {
-
-            let currentPageBookmarkList = getBookmark(bookmarkList);
-
-            // if there are existing bookmarks for the current page
-            if (currentPageBookmarkList) {
-                currentPageBookmarkList.push(bookmark)
-                bookmarkList[currentURL] = currentPageBookmarkList;
-                saveToLocalStorage(bookmarkList)
-            } else {
-                // set the bookmark for the current
-                setBookmark(bookmarkList, bookmark)
-                saveToLocalStorage(bookmarkList);
-            }
-
+        // if there are existing bookmarks for the current page
+        if (currentPageBookmarkList) {
+            currentPageBookmarkList.push(bookmark)
+            bookmarkList[currentURL] = currentPageBookmarkList;
+            saveToLocalStorage(bookmarkList)
         } else {
-            bookmarkList[currentURL] = []
-            bookmarkList[currentURL].push(bookmark)
-            //setBookmark(bookmarkList)
+            // set the bookmark for the current
+            setBookmark(bookmarkList, bookmark)
             saveToLocalStorage(bookmarkList);
         }
 
-        // hide the bookmark button
-        bookmarkBtn.classList.remove('show')
-        drawBookmarkBar();
+    } else {
+        bookmarkList[currentURL] = []
+        bookmarkList[currentURL].push(bookmark)
+        //setBookmark(bookmarkList)
+        saveToLocalStorage(bookmarkList);
     }
+
+    // hide the bookmark button
+    bookmarkBtn.classList.remove('show')
+    drawBookmarkBar();
 }
 
 function getSelectionText() {
@@ -195,6 +224,30 @@ function addClickEvent(el, bookmark) {
     }
 }
 
+function disableBookmarkify(){
+    // set disable in local storage
+    disable();
+    let bookmarkBar = document.getElementById('bookmarkBar')
+    //hide bookmark bar
+    if(bookmarkBar){
+        bookmarkBar.classList.add('hide')
+    }
+
+    // disable text selection 
+    document.removeEventListener('mouseup',onTextSelected,false);
+}
+
+function enableBookmarkify(){
+    // set enable in local storage
+    enable();
+    init();
+    let bookmarkBar = document.getElementById('bookmarkBar')
+    //hide bookmark bar
+    if(bookmarkBar){
+        bookmarkBar.classList.remove('hide')
+    }
+}
+
 
 // chrome eventes 
 chrome.runtime.onMessage.addListener(
@@ -210,6 +263,15 @@ chrome.runtime.onMessage.addListener(
             deleteBookmark(index)
             drawBookmarkBar();
             sendResponse(getBookmarksFromLocalStorage());
+        }
+        if (msg == 'enable') {
+            enableBookmarkify();
+        }
+        if(msg == 'disable'){
+            disableBookmarkify();
+        }
+        if(msg == 'isEnabled'){
+            sendResponse(isEnabled());
         }
     }
 );

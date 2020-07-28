@@ -1,8 +1,46 @@
 document.addEventListener("DOMContentLoaded", function () {
+    
+    let enableToggler = document.getElementById('enableToggler');
+    enableToggler.addEventListener('change',toggleEnableBookmarkify,false)
     LoadBookmarks();
+    checkForEnable()
+    
 });
 
 let bookmarks = ''
+let isEnabledOnThisPage = '' ;
+
+
+function checkForEnable(){
+    let message = {
+        msg: "isEnabled"
+    }
+
+    chrome.tabs.query({
+        currentWindow: true,
+        active: true
+    }, function (tabs) {
+        var activeTab = tabs[0];
+        chrome.tabs.sendMessage(activeTab.id, message, setIsEnabledOnThisPage);
+    });
+}
+
+function setIsEnabledOnThisPage(res){
+    isEnabledOnThisPage = res;
+    setEnableToggler()
+}
+
+function setEnableToggler(){
+    let enableToggler = document.getElementById('enableToggler');
+        console.log('isEnabledOnThisPage', isEnabledOnThisPage);
+        enableToggler.value = isEnabledOnThisPage
+
+        if(isEnabledOnThisPage){
+            enableToggler.checked = true;
+        }else{
+            enableToggler.checked = false;
+        }
+}
 
 
 function LoadBookmarks() {
@@ -91,8 +129,33 @@ function deleteBookmark(index) {
     });
 }
 
+
+
 function setNewBookmark(resp) {
     bookmarks = resp;
-    console.log(bookmarks);
     renderBookmarks();
+}
+
+function toggleEnableBookmarkify(e) {
+    e.stopPropagation();
+    // let toggler = document.querySelector('input[type="checkbox"]')
+    let toggler = document.getElementById('enableToggler')
+    let val = e.target.value;
+    let newVal = val == 'true' ? 'false' : 'true'
+
+    toggler.value = newVal;
+   
+    let msg = val == 'true' ? 'disable' : 'enable'
+
+    let message = {
+        msg: msg
+    }
+
+    chrome.tabs.query({
+        currentWindow: true,
+        active: true
+    }, function (tabs) {
+        var activeTab = tabs[0];
+        chrome.tabs.sendMessage(activeTab.id, message);
+    });
 }
