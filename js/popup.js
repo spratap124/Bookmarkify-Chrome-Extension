@@ -1,15 +1,10 @@
 document.addEventListener("DOMContentLoaded", function () {
-    
-    let enableToggler = document.getElementById('enableToggler');
-    enableToggler.addEventListener('change',toggleEnableBookmarkify,false)
     LoadBookmarks();
     checkForEnable()
-    
 });
 
 let bookmarks = ''
-let isEnabledOnThisPage = '' ;
-
+let isEnabledOnThisPage  ;
 
 function checkForEnable(){
     let message = {
@@ -27,21 +22,18 @@ function checkForEnable(){
 
 function setIsEnabledOnThisPage(res){
     isEnabledOnThisPage = res;
+    console.log(isEnabledOnThisPage);
     setEnableToggler()
 }
 
 function setEnableToggler(){
-    let enableToggler = document.getElementById('enableToggler');
-        console.log('isEnabledOnThisPage', isEnabledOnThisPage);
-        enableToggler.value = isEnabledOnThisPage
+    let enableToggler = document.getElementById('switchSlider');
+       
+    isEnabledOnThisPage == 'true' ?  enableToggler.classList.add('on') :  enableToggler.classList.remove('on')
+    
+    enableToggler.addEventListener('click',toggleEnableBookmarkify)
 
-        if(isEnabledOnThisPage){
-            enableToggler.checked = true;
-        }else{
-            enableToggler.checked = false;
-        }
 }
-
 
 function LoadBookmarks() {
 
@@ -129,8 +121,6 @@ function deleteBookmark(index) {
     });
 }
 
-
-
 function setNewBookmark(resp) {
     bookmarks = resp;
     renderBookmarks();
@@ -138,14 +128,11 @@ function setNewBookmark(resp) {
 
 function toggleEnableBookmarkify(e) {
     e.stopPropagation();
-    // let toggler = document.querySelector('input[type="checkbox"]')
-    let toggler = document.getElementById('enableToggler')
-    let val = e.target.value;
-    let newVal = val == 'true' ? 'false' : 'true'
+    let toolSwitch = document.getElementById('switchSlider');
 
-    toggler.value = newVal;
-   
-    let msg = val == 'true' ? 'disable' : 'enable'
+    let isOn = toolSwitch.classList.contains('on')
+
+    let msg = isOn == true ? 'disable' : 'enable'
 
     let message = {
         msg: msg
@@ -156,6 +143,16 @@ function toggleEnableBookmarkify(e) {
         active: true
     }, function (tabs) {
         var activeTab = tabs[0];
-        chrome.tabs.sendMessage(activeTab.id, message);
+        chrome.tabs.sendMessage(activeTab.id, message, changeSwitch);
     });
+}
+
+function changeSwitch(res){
+    let toolSwitch = document.getElementById('switchSlider');
+    let isOn = res;
+
+    console.log(isOn);
+
+    isOn == 'true' ? toolSwitch.classList.add('on') : toolSwitch.classList.remove('on')
+
 }

@@ -266,9 +266,11 @@ chrome.runtime.onMessage.addListener(
         }
         if (msg == 'enable') {
             enableBookmarkify();
+            sendResponse(isEnabled())
         }
         if(msg == 'disable'){
             disableBookmarkify();
+            sendResponse(isEnabled())
         }
         if(msg == 'isEnabled'){
             sendResponse(isEnabled());
