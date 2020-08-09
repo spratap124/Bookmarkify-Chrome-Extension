@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
     "name": "Bookmarkify",
-    "description": "Quick way to bookmark to a particular section of page",
+    "description": "Quick way to bookmark a particular section of page",
     "version": "1.0.0",
     "icons": {
         "16":"img/icon_16.png",
