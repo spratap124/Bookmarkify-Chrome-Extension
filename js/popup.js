@@ -67,12 +67,18 @@ function renderBookmarks() {
             icon.classList.add('bIcon')
             let li = document.createElement('li');
             li.className = 'list'
-            li.appendChild(icon)
+           
             let span = document.createElement('span');
             span.className = 'title'
-            span.innerHTML = bookmark.title;
+            span.appendChild(icon)
+            let title = document.createElement('span');
+            title.innerHTML = bookmark.title;
+            span.appendChild(title);
             li.appendChild(span)
-
+            li.addEventListener('click',function(e){
+                e.stopPropagation();
+                scrollToBookmark(bookmark.top)
+            },false)
             let deleteBtn = makeDeleteBtn();
             addDeleteEvent(deleteBtn, index);
             li.appendChild(deleteBtn)
@@ -85,6 +91,21 @@ function renderBookmarks() {
         li.innerHTML = 'Select some text to save a bookmark'
         ul.appendChild(li)
     }
+}
+
+function scrollToBookmark(top){
+    let message = {
+        msg: "scrollTo",
+        top: top
+    }
+
+    chrome.tabs.query({
+        currentWindow: true,
+        active: true
+    }, function (tabs) {
+        var activeTab = tabs[0];
+        chrome.tabs.sendMessage(activeTab.id, message);
+    });
 }
 
 function makeDeleteBtn() {
@@ -100,7 +121,8 @@ function makeDeleteBtn() {
 }
 
 function addDeleteEvent(btn, index) {
-    btn.addEventListener('click', function () {
+    btn.addEventListener('click', function (e) {
+        e.stopPropagation();
         deleteBookmark(index)
     })
 }

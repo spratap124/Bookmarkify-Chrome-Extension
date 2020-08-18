@@ -275,6 +275,10 @@ chrome.runtime.onMessage.addListener(
         if(msg == 'isEnabled'){
             sendResponse(isEnabled());
         }
+        if(msg == 'scrollTo'){
+            let top = request.top;
+            scrollToPosition(top)
+        }
     }
 );
 
@@ -295,4 +299,8 @@ function deleteBookmark(index) {
     let currentPageBookmarkList = bookmarks[currentURL];
     currentPageBookmarkList.splice(index, 1)
     localStorage.setItem('bookmarks', JSON.stringify(bookmarks))
+}
+
+function scrollToPosition(top){
+    window.scrollTo(0, top)
 }
